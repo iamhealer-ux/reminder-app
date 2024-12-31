@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminder App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 600px;
+        }
+        .container {
+            margin-bottom: 20px;
+        }
+        input, textarea, button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reminder App</h1>
+
+    <div class="container">
+        <h2>Add Reminder</h2>
+        <input type="text" id="task" placeholder="Task description">
+        <input type="datetime-local" id="date">
+        <button onclick="addReminder()">Add Reminder</button>
+        <div id="reminderResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>Add Note</h2>
+        <input type="text" id="category" placeholder="Category">
+        <textarea id="note" placeholder="Note content"></textarea>
+        <button onclick="addNote()">Add Note</button>
+        <div id="noteResult" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>View Reminders</h2>
+        <button onclick="viewReminders()">Get Reminders</button>
+        <div id="remindersList" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>View Notes</h2>
+        <input type="text" id="viewCategory" placeholder="Category (optional)">
+        <button onclick="viewNotes()">Get Notes</button>
+        <div id="notesList" class="result"></div>
+    </div>
+
+    <script>
+        async function addReminder() {
+            const task = document.getElementById('task').value;
+            const date = document.getElementById('date').value;
+            const response = await fetch('http://localhost:5000/api/reminders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task, date })
+            });
+            const result = await response.json();
+            document.getElementById('reminderResult').textContent = JSON.stringify(result);
+        }
+
+        async function addNote() {
+            const category = document.getElementById('category').value;
+            const note = document.getElementById('note').value;
+            const response = await fetch('http://localhost:5000/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category, note })
+            });
+            const result = await response.json();
+            document.getElementById('noteResult').textContent = JSON.stringify(result);
+        }
+
+        async function viewReminders() {
+            const response = await fetch('http://localhost:5000/api/reminders');
+            const result = await response.json();
+            document.getElementById('remindersList').textContent = JSON.stringify(result);
+        }
+
+        async function viewNotes() {
+            const category = document.getElementById('viewCategory').value;
+            const url = category
+                ? `http://localhost:5000/api/notes?category=${category}`
+                : 'http://localhost:5000/api/notes';
+            const response = await fetch(url);
+            const result = await response.json();
+            document.getElementById('notesList').textContent = JSON.stringify(result);
+        }
+    </script>
+</body>
+</html>
